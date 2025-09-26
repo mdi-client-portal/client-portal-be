@@ -9,7 +9,7 @@ import (
 func main() {
     cfg := config.Load()
 
-	config.ConnectDB(cfg)
+	// config.ConnectDB(cfg)
 
     // seeders.UserSeeder(config.DB)
 	// seeders.ClientSeeder(config.DB)
@@ -17,5 +17,5 @@ func main() {
 
     app := fiber.New()
 	router.SetupUserRoutes(app)
-    app.Listen(":3000")
+    app.Listen("0.0.0.0:" + cfg.Port)
 }
