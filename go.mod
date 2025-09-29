@@ -3,19 +3,20 @@ module github.com/mdi-client-portal/client-portal-be
 go 1.25.0
 
 require (
+	github.com/go-playground/validator/v10 v10.27.0
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/spf13/viper v1.21.0
+	golang.org/x/crypto v0.42.0
+	gorm.io/driver/postgres v1.6.0
+	gorm.io/gorm v1.31.0
 )
 
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.27.0 // indirect
-	github.com/go-sql-driver/mysql v1.9.3 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -41,18 +42,8 @@ require (
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.42.0 // indirect
-	golang.org/x/mod v0.28.0 // indirect
 	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
-	golang.org/x/tools v0.37.0 // indirect
-	gorm.io/datatypes v1.2.6 // indirect
-	gorm.io/driver/mysql v1.6.0 // indirect
-	gorm.io/driver/postgres v1.6.0 // indirect
-	gorm.io/gen v0.3.27 // indirect
-	gorm.io/gorm v1.31.0 // indirect
-	gorm.io/hints v1.1.2 // indirect
-	gorm.io/plugin/dbresolver v1.6.2 // indirect
 )

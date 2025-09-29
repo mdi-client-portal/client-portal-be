@@ -7,15 +7,15 @@ import (
 )
 
 func main() {
-    cfg := config.Load()
+	cfg := config.Load()
 
-	// config.ConnectDB(cfg)
+	config.ConnectDB(cfg)
 
-    // seeders.UserSeeder(config.DB)
+	// seeders.UserSeeder(config.DB)
 	// seeders.ClientSeeder(config.DB)
 	// seeders.InvoiceSeeder(config.DB)
 
-    app := fiber.New()
+	app := fiber.New()
 	router.SetupUserRoutes(app)
-    app.Listen("0.0.0.0:" + cfg.Port)
+	app.Listen("0.0.0.0:" + cfg.Port)
 }
