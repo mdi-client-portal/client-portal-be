@@ -20,7 +20,7 @@ func NewClientRepository(db *gorm.DB) ClientRepository {
 func (r *clientRepository) FindByEmail(email string) (*models.Client, error) {
 	var client models.Client
 	query := `
-		SELECT client_id, client_email, client_password, client_name, currency, country, client_address, postal_code, client_phone
+		SELECT *
 		FROM clients WHERE client_email = ? LIMIT 1
 	`
 	if err := r.db.Raw(query, email).Scan(&client).Error; err != nil {

@@ -31,7 +31,6 @@ func (cs *clientService) LoginService(email string, password string) (models.Cli
 		return models.ClientLoginResponse{}, err
 	}
 
-	// cek password
 	if err := bcrypt.CompareHashAndPassword([]byte(client.ClientPassword), []byte(password)); err != nil {
 		return models.ClientLoginResponse{}, errors.New("password salah")
 	}

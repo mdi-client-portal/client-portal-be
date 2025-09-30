@@ -17,5 +17,4 @@ func ClientRoutes(api fiber.Router) {
 	clientHandler := handlers.NewClientHandler(clientService)
 
 	client.Post("/login", clientHandler.LoginHandler)
-	// user.Post("/register", controllers.UserRegister)
 }
