@@ -9,4 +9,5 @@ func SetupUserRoutes(router *fiber.App) {
 
 	ClientRoutes(api)
 	InvoiceRoutes(api)
+	PaymentRoutes(api)
 }
