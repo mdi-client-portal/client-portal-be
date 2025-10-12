@@ -9,10 +9,11 @@ func ToInvoiceClientResponse(invoices []models.Invoice) []models.InvoiceResponse
 	for i, c := range invoices {
 		res[i] = models.InvoiceResponse{
 			InvoiceID:     c.InvoiceID,
-			InvoiceNumber: c.InvoiceNumber,
+			IssueDate:     c.IssueDate,
 			DueDate:       c.DueDate,
 			Total:         c.Total,
 			PaymentStatus: c.PaymentStatus,
+			AmountPaid:    c.AmountPaid,
 		}
 	}
 	return res

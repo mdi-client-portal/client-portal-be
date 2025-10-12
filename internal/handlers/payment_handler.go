@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/mdi-client-portal/client-portal-be/internal/services"
 	"github.com/mdi-client-portal/client-portal-be/internal/utils"
-	"github.com/mdi-client-portal/client-portal-be/internal/validators"
+	// "github.com/mdi-client-portal/client-portal-be/internal/validators"
 )
 
 type PaymentHandler struct {
@@ -16,20 +18,17 @@ func NewPaymentHandler(service services.PaymentService) *PaymentHandler {
 }
 
 func (h *PaymentHandler) GetAllPaymentByClientIdHandler(c *fiber.Ctx) error {
-	var req validators.PaymentClientValidator
+	// var req validators.PaymentClientValidator
 
-	if err := c.BodyParser(&req); err != nil {
-		return utils.Error(c, fiber.StatusBadRequest, "Invalid request body", err.Error())
-	}
+	fmt.Println("Masuk ke get all payments handler")
 
-	if err := validators.Validate.Struct(req); err != nil {
-		return utils.Error(c, fiber.StatusBadRequest, "Validation failed", err.Error())
-	}
+	userId := c.Locals("userId").(string)
 
-	payments, err := h.service.GetAllPaymentByClientIdService(req.ClientId)
+	payments, err := h.service.GetAllPaymentByClientIdService(userId)
 	if err != nil {
 		return utils.Error(c, fiber.StatusUnauthorized, "Get Payment gagal", err.Error())
 	}
 
+	fmt.Println("Payments:", payments)
 	return utils.Success(c, fiber.StatusOK, "Get Payment success", utils.ToAllPaymentByClientResponse(payments))
 }

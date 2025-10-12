@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/mdi-client-portal/client-portal-be/database/models"
 	"github.com/mdi-client-portal/client-portal-be/internal/repositories"
@@ -23,6 +24,7 @@ func NewClientService(repo repositories.ClientRepository) ClientService {
 }
 
 func (cs *clientService) LoginService(email string, password string) (models.ClientLoginResponse, error) {
+	fmt.Println("masuk login service")
 	client, err := cs.repo.FindByEmail(email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
