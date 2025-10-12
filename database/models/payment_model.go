@@ -17,5 +17,6 @@ type Payment struct {
 type PaymentResponse struct {
 	PaymentDate     time.Time `json:"payment_date"`
 	AmountPaid      float64   `json:"amount_paid"`
+	VoidedAt		*time.Time `json:"voided_at"`
 	ProofOfTransfer string    `json:"proof_of_transfer"`
 }

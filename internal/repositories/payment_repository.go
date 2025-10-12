@@ -23,6 +23,7 @@ func (p *paymentRepository) GetAllPaymentByClientId(clientId string) ([]models.P
 		SELECT 
 			p.payment_date,
 			p.amount_paid,
+			p.voided_at,
 			p.proof_of_transfer
 		FROM payments p
 		JOIN invoices i 
