@@ -7,7 +7,7 @@ import (
 
 type InvoiceRepository interface {
 	GetAllInvoiceByClientId(clientId string) ([]models.Invoice, error)
-	GetInvoiceById(invoiceId string) (*models.Invoice, error)
+	GetInvoiceById(invoiceId string) (*models.InvoiceWithDetailResponse, error)
 }
 
 type invoiceRepository struct {
@@ -30,14 +30,51 @@ func (i *invoiceRepository) GetAllInvoiceByClientId(clientId string) ([]models.I
 	return invoices, nil
 }
 
-func (i *invoiceRepository) GetInvoiceById(invoiceId string) (*models.Invoice, error) {
+func (r *invoiceRepository) GetInvoiceById(invoiceId string) (*models.InvoiceWithDetailResponse, error) {
 	var invoice models.Invoice
-	query := `
-		SELECT *
-		FROM invoices WHERE invoice_id = ? LIMIT 1
-	`
-	if err := i.db.Raw(query, invoiceId).Scan(&invoice).Error; err != nil {
+	var invoiceDetails []models.InvoiceDetail
+
+	// Ambil invoice
+	if err := r.db.Raw(`SELECT * FROM invoices WHERE invoice_id = ? LIMIT 1`, invoiceId).Scan(&invoice).Error; err != nil {
 		return nil, err
 	}
-	return &invoice, nil
+
+	// Ambil detail invoice
+	if err := r.db.Raw(`SELECT * FROM invoice_details WHERE invoice_id = ?`, invoiceId).Scan(&invoiceDetails).Error; err != nil {
+		return nil, err
+	}
+
+	// Mapping ke response
+	response := &models.InvoiceWithDetailResponse{
+		Invoice: models.InvoiceExtendedResponse{
+			InvoiceID:        invoice.InvoiceID,
+			InvoiceNumber:    invoice.InvoiceNumber,
+			IssueDate:        invoice.IssueDate,
+			DueDate:          invoice.DueDate,
+			TaxRate:          invoice.TaxRate,
+			TaxAmount:        invoice.TaxAmount,
+			SubTotal:         invoice.SubTotal,
+			Total:            invoice.Total,
+			TaxInvoiceNumber: invoice.TaxInvoiceNumber,
+			AmountPaid:       invoice.AmountPaid,
+			PaymentStatus:    invoice.PaymentStatus,
+			VoidedAt:         invoice.VoidedAt,
+		},
+	}
+
+	for _, d := range invoiceDetails {
+		response.InvoiceDetails = append(response.InvoiceDetails, models.InvoiceDetailResponse{
+			InvoiceDetailID:  d.InvoiceDetailID,
+			InvoiceID:        d.InvoiceID,
+			Amount:           d.Amount,
+			CreatedAt:        d.CreatedAt,
+			PricePerDelivery: d.PricePerDelivery,
+			TransactionNote:  d.TransactionNote,
+			UpdatedAt:        d.UpdatedAt,
+			DeliveryCount:    d.DeliveryCount,
+			DeletedAt:        d.DeletedAt,
+		})
+	}
+
+	return response, nil
 }

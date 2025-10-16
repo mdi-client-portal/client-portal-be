@@ -8,7 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/mdi-client-portal/client-portal-be/internal/services"
 	"github.com/mdi-client-portal/client-portal-be/internal/utils"
-	"github.com/mdi-client-portal/client-portal-be/internal/validators"
+	// "github.com/mdi-client-portal/client-portal-be/internal/validators"
 )
 
 type InvoiceHandler struct {
@@ -58,20 +58,29 @@ func (h *InvoiceHandler) GetAllInvoiceByClientIdHandler(c *fiber.Ctx) error {
 }
 
 func (h *InvoiceHandler) GetInvoiceByIdHandler(c *fiber.Ctx) error {
-	var req validators.InvoiceDetailValidator
-
-	if err := c.BodyParser(&req); err != nil {
-		return utils.Error(c, fiber.StatusBadRequest, "Invalid request body", err.Error())
+	type RequestBody struct {
+		InvoiceID string `json:"invoice_id"`
 	}
 
-	if err := validators.Validate.Struct(req); err != nil {
-		return utils.Error(c, fiber.StatusBadRequest, "Validation failed", err.Error())
+	var body RequestBody
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "invalid request body",
+		})
 	}
 
-	client, err := h.service.GetInvoiceByIdService(req.ClientId, req.InvoiceId)
+	if body.InvoiceID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "invoice_id is required",
+		})
+	}
+
+	response, err := h.service.GetInvoiceByIdService(body.InvoiceID)
 	if err != nil {
-		return utils.Error(c, fiber.StatusUnauthorized, "Get Invoice gagal", err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
 	}
 
-	return utils.Success(c, fiber.StatusOK, "Get Invoice success", client)
+	return c.Status(fiber.StatusOK).JSON(response)
 }

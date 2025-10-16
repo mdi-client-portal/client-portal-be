@@ -17,5 +17,5 @@ func InvoiceRoutes(api fiber.Router) {
 	invoiceHandler := handlers.NewInvoiceHandler(invoiceService)
 
 	invoice.Get("/get", invoiceHandler.GetAllInvoiceByClientIdHandler)
-	invoice.Get("/get/detail", invoiceHandler.GetInvoiceByIdHandler)
+	invoice.Post("/get/detail", invoiceHandler.GetInvoiceByIdHandler)
 }

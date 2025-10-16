@@ -5,13 +5,12 @@ import (
 
 	"github.com/mdi-client-portal/client-portal-be/database/models"
 	"github.com/mdi-client-portal/client-portal-be/internal/repositories"
-	"github.com/mdi-client-portal/client-portal-be/internal/utils"
 	"gorm.io/gorm"
 )
 
 type InvoiceService interface {
 	GetAllInvoiceByClientIdService(clientId string) ([]models.Invoice, error)
-	GetInvoiceByIdService(client string, invoiceId string) (models.InvoiceDetailResponse, error)
+	GetInvoiceByIdService(invoiceId string) (*models.InvoiceWithDetailResponse, error)
 }
 
 type invoiceService struct {
@@ -34,13 +33,6 @@ func (i *invoiceService) GetAllInvoiceByClientIdService(clientId string) ([]mode
 	return invoices, nil
 }
 
-func (i *invoiceService) GetInvoiceByIdService(clientId string, invoiceId string) (models.InvoiceDetailResponse, error) {
-	invoice, err := i.repo.GetInvoiceById(invoiceId)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return models.InvoiceDetailResponse{}, errors.New("invoice tidak ditemukan")
-		}
-		return models.InvoiceDetailResponse{}, err
-	}
-	return utils.ToInvoiceDetailResponse(invoice), nil
+func (i *invoiceService) GetInvoiceByIdService(invoiceId string) (*models.InvoiceWithDetailResponse, error) {
+	return i.repo.GetInvoiceById(invoiceId)
 }
