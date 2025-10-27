@@ -28,3 +28,15 @@ func (r *clientRepository) FindByEmail(email string) (*models.Client, error) {
 	}
 	return &client, nil
 }
+ 
+func (r *clientRepository) GetEmailByClientId(clientId string) (string, error) {
+	var client models.Client
+	query := `
+		SELECT *
+		FROM clients WHERE client_id = ? LIMIT 1
+	`
+	if err := r.db.Raw(query, clientId).Scan(&client).Error; err != nil {
+		return "", err
+	}
+	return client.ClientEmail, nil
+}

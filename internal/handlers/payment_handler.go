@@ -18,8 +18,6 @@ func NewPaymentHandler(service services.PaymentService) *PaymentHandler {
 }
 
 func (h *PaymentHandler) GetAllPaymentByClientIdHandler(c *fiber.Ctx) error {
-	// var req validators.PaymentClientValidator
-
 	fmt.Println("Masuk ke get all payments handler")
 
 	userId := c.Locals("userId").(string)

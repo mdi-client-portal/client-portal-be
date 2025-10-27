@@ -34,17 +34,14 @@ func (r *invoiceRepository) GetInvoiceById(invoiceId string) (*models.InvoiceWit
 	var invoice models.Invoice
 	var invoiceDetails []models.InvoiceDetail
 
-	// Ambil invoice
 	if err := r.db.Raw(`SELECT * FROM invoices WHERE invoice_id = ? LIMIT 1`, invoiceId).Scan(&invoice).Error; err != nil {
 		return nil, err
 	}
 
-	// Ambil detail invoice
 	if err := r.db.Raw(`SELECT * FROM invoice_details WHERE invoice_id = ?`, invoiceId).Scan(&invoiceDetails).Error; err != nil {
 		return nil, err
 	}
 
-	// Mapping ke response
 	response := &models.InvoiceWithDetailResponse{
 		Invoice: models.InvoiceExtendedResponse{
 			InvoiceID:        invoice.InvoiceID,
@@ -78,3 +75,13 @@ func (r *invoiceRepository) GetInvoiceById(invoiceId string) (*models.InvoiceWit
 
 	return response, nil
 }
+
+func GetUnpaidAndPartialInvoices(db *gorm.DB) ([]models.Invoice, error) {
+	var invoices []models.Invoice
+	if err := db.Where("payment_status IN (?, ?)", "unpaid", "partial").Find(&invoices).Error; err != nil {
+		return nil, err
+	}
+	return invoices, nil
+}
+
+//

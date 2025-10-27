@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/mdi-client-portal/client-portal-be/internal/services"
 	"github.com/mdi-client-portal/client-portal-be/internal/utils"
@@ -18,7 +16,6 @@ func NewClientHandler(service services.ClientService) *ClientHandler {
 }
 
 func (h *ClientHandler) LoginHandler(c *fiber.Ctx) error {
-	fmt.Println("masuk login handler")
 	var req validators.ClientLoginValidator
 
 	if err := c.BodyParser(&req); err != nil {
