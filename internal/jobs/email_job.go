@@ -12,8 +12,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func SendEmail(to, subject, htmlBody string, cfg *config.Config) error {
-	auth := smtp.PlainAuth("", cfg.FromEmail, cfg.FromEmailPassword, cfg.FromEmailSMTP)
+func SendEmail(to, subject, htmlBody string) error {
+	auth := smtp.PlainAuth("", config.Env.FromEmail, config.Env.FromEmailPassword, config.Env.FromEmailSMTP)
 
 	msg := fmt.Sprintf("From: %s\r\n"+
 		"To: %s\r\n"+
@@ -21,9 +21,9 @@ func SendEmail(to, subject, htmlBody string, cfg *config.Config) error {
 		"MIME-Version: 1.0\r\n"+
 		"Content-Type: text/html; charset=UTF-8\r\n"+
 		"\r\n"+
-		"%s\r\n", cfg.FromEmail, to, subject, htmlBody)
+		"%s\r\n", config.Env.FromEmail, to, subject, htmlBody)
 
-	return smtp.SendMail(cfg.SMTPAddr, auth, cfg.FromEmail, []string{to}, []byte(msg))
+	return smtp.SendMail(config.Env.SMTPAddr, auth, config.Env.FromEmail, []string{to}, []byte(msg))
 }
 
 func createEmailTemplate(clientName, invoiceNumber string, dueDate time.Time, total, amountPaid float64, daysLeft int) string {
@@ -207,9 +207,7 @@ func createEmailTemplate(clientName, invoiceNumber string, dueDate time.Time, to
 }
 
 func EmailCron(db *gorm.DB) {
-	// Load configuration
-	cfg := config.Load()
-	
+
 	var invoices []models.Invoice
 	var client models.Client
 	
@@ -227,13 +225,12 @@ func EmailCron(db *gorm.DB) {
 			continue
 		}
 
-		// Kirim email pada hari ke-5, 3, dan 1 sebelum due date
-		if true {
-		// if daysLeft == 5 || daysLeft == 3 || daysLeft == 1 {
+
+		// if true {
+		if daysLeft == 5 || daysLeft == 3 || daysLeft == 1 {
 			subject := fmt.Sprintf("Pengingat Pembayaran Invoice %s - %d Hari Lagi", 
 				inv.InvoiceNumber, daysLeft)
 			
-			// Generate HTML email template
 			htmlBody := createEmailTemplate(
 				client.ClientName,
 				inv.InvoiceNumber,
@@ -243,9 +240,8 @@ func EmailCron(db *gorm.DB) {
 				daysLeft,
 			)
 
-			// Kirim email
-			// if err := SendEmail(client.ClientEmail, subject, htmlBody, cfg); err != nil {
-			if err := SendEmail("tio.michael2004@gmail.com", subject, htmlBody, cfg); err != nil {
+	
+			if err := SendEmail("tio.michael2004@gmail.com", subject, htmlBody); err != nil {
 				log.Printf("❌ Gagal kirim email ke %s untuk invoice %s: %v", 
 					client.ClientEmail, inv.InvoiceNumber, err)
 			} else {

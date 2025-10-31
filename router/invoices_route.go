@@ -5,7 +5,9 @@ import (
 	"github.com/mdi-client-portal/client-portal-be/internal/handlers"
 
 	"github.com/mdi-client-portal/client-portal-be/config"
+	"github.com/mdi-client-portal/client-portal-be/internal/middlewares"
 	"github.com/mdi-client-portal/client-portal-be/internal/repositories"
+
 	"github.com/mdi-client-portal/client-portal-be/internal/services"
 )
 
@@ -16,6 +18,6 @@ func InvoiceRoutes(api fiber.Router) {
 	invoiceService := services.NewInvoiceService(invoiceRepo)
 	invoiceHandler := handlers.NewInvoiceHandler(invoiceService)
 
-	invoice.Get("/get", invoiceHandler.GetAllInvoiceByClientIdHandler)
-	invoice.Post("/get/detail", invoiceHandler.GetInvoiceByIdHandler)
+	invoice.Get("/get", middlewares.AuthMiddleware, invoiceHandler.GetAllInvoiceByClientIdHandler)
+	invoice.Post("/get/detail", middlewares.AuthMiddleware, invoiceHandler.GetInvoiceByIdHandler)
 }

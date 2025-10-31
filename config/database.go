@@ -2,29 +2,30 @@ package config
 
 import (
 	"fmt"
-	"log"
 
+	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
-func ConnectDB(cfg *Config) {	
+func ConnectDB() {	
+	Log.Info("Connecting to database...")
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta",
-		(*cfg).DBHost,
-		cfg.DBUser,
-		cfg.DBPassword,
-		cfg.DBName,
-		cfg.DBPort,
+		Env.DBHost,
+		Env.DBUser,
+		Env.DBPassword,
+		Env.DBName,
+		Env.DBPort,
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("failed to connect database: ", err)
+		Log.Error("failed to connect database: ", zap.String("error", err.Error()))
 	}
 
 	DB = db
-	fmt.Println("✅ Database connected")
+	Log.Info("Database connected")
 }

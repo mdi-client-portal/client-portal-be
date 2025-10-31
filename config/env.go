@@ -1,25 +1,28 @@
 package config
 
 import (
-	"log"
-
 	"github.com/spf13/viper"
 )
 
-type Config struct {
-	Port string
-	DBHost string
-	DBName string
-	DBUser string
-	DBPassword string
-	DBPort string
-	FromEmail string
+type Environment struct {
+	Port              string
+	DBHost            string
+	DBName            string
+	DBUser            string
+	DBPassword        string
+	DBPort            string
+	FromEmail         string
 	FromEmailPassword string
-	FromEmailSMTP string
-	SMTPAddr string
+	FromEmailSMTP     string
+	SMTPAddr          string
+	AppEnv            string
+	LogLevel          string
 }
 
-func Load() *Config{
+var Env *Environment
+
+func EnvInit() *Environment {
+	Log.Info("Initializing environment variables...")
 	v := viper.New()
 
 	v.SetDefault("PORT", "3000")
@@ -28,29 +31,31 @@ func Load() *Config{
 	v.SetDefault("DB_USER", "postgres")
 	v.SetDefault("DB_PASSWORD", "12345")
 	v.SetDefault("DB_PORT", "5432")
-	v.SetDefault("FROM_EMAIL", "example@gmail.com")
-	v.SetDefault("FROM_EMAIL_PASSWORD", "xxxx xxxx xxxx xxxx")
-	v.SetDefault("FROM_EMAIL_SMTP", "smtp.gmail.com")
-	v.SetDefault("SMTP_ADDR", "smtp.gmail.com:587")
+	v.SetDefault("APP_ENV", "development")
+	v.SetDefault("LOG_LEVEL", "info")
 
 	v.SetConfigFile(".env")
-    v.AutomaticEnv() 
+	v.AutomaticEnv()
 
 	if err := v.ReadInConfig(); err != nil {
-		log.Println("No .env file found, using environment variables only")
+		Log.Warn("No .env file found, reading configuration from environment variables")
 	}
 
-	return &Config{
-        Port: v.GetString("PORT"),
-		DBHost : v.GetString("DB_HOST"),
-		DBName : v.GetString("DB_NAME"),
-		DBUser : v.GetString("DB_USER"),
-		DBPassword : v.GetString("DB_PASSWORD"),
-		DBPort : v.GetString("DB_PORT"),
-		FromEmail: v.GetString("FROM_EMAIL"),
+	Env = &Environment{
+		Port:              v.GetString("PORT"),
+		DBHost:            v.GetString("DB_HOST"),
+		DBName:            v.GetString("DB_NAME"),
+		DBUser:            v.GetString("DB_USER"),
+		DBPassword:        v.GetString("DB_PASSWORD"),
+		DBPort:            v.GetString("DB_PORT"),
+		FromEmail:         v.GetString("FROM_EMAIL"),
 		FromEmailPassword: v.GetString("FROM_EMAIL_PASSWORD"),
-		FromEmailSMTP: v.GetString("FROM_EMAIL_SMTP"),
-		SMTPAddr: v.GetString("SMTP_ADDR"),
-    }
-    
+		FromEmailSMTP:     v.GetString("FROM_EMAIL_SMTP"),
+		SMTPAddr:          v.GetString("SMTP_ADDR"),
+		AppEnv:            v.GetString("APP_ENV"),
+		LogLevel:          v.GetString("LOG_LEVEL"),
+	}
+
+	Log.Info("Environment variables initialized")
+	return Env
 }

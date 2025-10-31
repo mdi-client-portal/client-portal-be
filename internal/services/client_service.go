@@ -23,16 +23,17 @@ func NewClientService(repo repositories.ClientRepository) ClientService {
 }
 
 func (cs *clientService) LoginService(email string, password string) (models.ClientLoginResponse, error) {
+
 	client, err := cs.repo.FindByEmail(email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return models.ClientLoginResponse{}, errors.New("email tidak ditemukan")
+			return models.ClientLoginResponse{}, errors.New("email not found")
 		}
 		return models.ClientLoginResponse{}, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(client.ClientPassword), []byte(password)); err != nil {
-		return models.ClientLoginResponse{}, errors.New("password salah")
+		return models.ClientLoginResponse{}, errors.New("Wrong password")
 	}
 
 	return utils.ToClientLoginResponse(client), nil
