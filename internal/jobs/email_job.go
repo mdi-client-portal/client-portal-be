@@ -211,15 +211,13 @@ func EmailCron(db *gorm.DB) {
 	var invoices []models.Invoice
 	var client models.Client
 	
-	// Ambil invoice yang belum lunas (unpaid dan partial_paid)
+	
 	db.Where("payment_status IN ?", []string{"unpaid", "partial_paid"}).Find(&invoices)
 	
 	now := time.Now()
 	for _, inv := range invoices {
-		// Hitung sisa hari sampai due date
 		daysLeft := int(inv.DueDate.Sub(now).Hours() / 24)
-		fmt.Println("Testing CRon")
-		// Ambil data client
+
 		if err := db.Where("client_id = ?", inv.ClientID).First(&client).Error; err != nil {
 			log.Printf("Client tidak ditemukan untuk invoice %s: %v", inv.InvoiceID, err)
 			continue

@@ -41,26 +41,20 @@ func (h *InvoiceHandler) GetInvoiceByIdHandler(c *fiber.Ctx) error {
 	var body RequestBody
 	if err := c.BodyParser(&body); err != nil {
 		config.Log.Error("Failed to parse request body: ", zap.String("error", err.Error()))
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "invalid request body",
-		})
+		return utils.Error(c, fiber.StatusBadRequest, "Invalid request body", err.Error())
 	}
 
 	if body.InvoiceID == "" {
 		config.Log.Error("invoice_id is required")
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "invoice_id is required",
-		})
+		return utils.Error(c, fiber.StatusBadRequest, "invoice_id is required", nil)
 	}
 
 	response, err := h.service.GetInvoiceByIdService(body.InvoiceID)
 	if err != nil {
 		config.Log.Error("Failed to get invoice by ID: ", zap.String("error", err.Error()))
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
+		return utils.Error(c, fiber.StatusUnauthorized, "Get Invoice by ID gagal", err.Error())
 	}
 
 	config.Log.Info("Get invoice by ID success", zap.String("invoice_id", body.InvoiceID))
-	return c.Status(fiber.StatusOK).JSON(response)
+	return utils.Success(c, fiber.StatusOK, "Get Invoice by ID success", response)
 }
