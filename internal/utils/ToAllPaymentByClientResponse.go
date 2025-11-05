@@ -20,6 +20,7 @@ func ToAllPaymentByClientResponse(payments []models.Payment) []models.PaymentRes
 			AmountPaid:      c.AmountPaid,
 			VoidedAt:        voidedAt,
 			ProofOfTransfer: c.ProofOfTransfer,
+			InvoiceNumber:   c.InvoiceNumber,
 		}
 	}
 
