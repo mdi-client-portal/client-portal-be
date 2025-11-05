@@ -38,6 +38,11 @@ func (r *invoiceRepository) GetInvoiceById(invoiceId string) (*models.InvoiceWit
 		return nil, err
 	}
 
+	// Check if invoice was found
+	if invoice.InvoiceID == "" {
+		return nil, gorm.ErrRecordNotFound
+	}
+
 	if err := r.db.Raw(`SELECT * FROM invoice_details WHERE invoice_id = ?`, invoiceId).Scan(&invoiceDetails).Error; err != nil {
 		return nil, err
 	}

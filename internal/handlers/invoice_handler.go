@@ -52,7 +52,7 @@ func (h *InvoiceHandler) GetInvoiceByIdHandler(c *fiber.Ctx) error {
 	response, err := h.service.GetInvoiceByIdService(body.InvoiceID)
 	if err != nil {
 		config.Log.Error("Failed to get invoice by ID: ", zap.String("error", err.Error()))
-		return utils.Error(c, fiber.StatusUnauthorized, "Get Invoice by ID gagal", err.Error())
+		return utils.Success(c, fiber.StatusOK, "not found", nil)
 	}
 
 	config.Log.Info("Get invoice by ID success", zap.String("invoice_id", body.InvoiceID))

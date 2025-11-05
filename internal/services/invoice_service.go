@@ -40,5 +40,18 @@ func (i *invoiceService) GetAllInvoiceByClientIdService(clientId string) ([]mode
 }
 
 func (i *invoiceService) GetInvoiceByIdService(invoiceId string) (*models.InvoiceWithDetailResponse, error) {
-	return i.repo.GetInvoiceById(invoiceId)
+	config.Log.Info("Get invoice by ID attempt", zap.String("invoice_id", invoiceId))
+	
+	response, err := i.repo.GetInvoiceById(invoiceId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			config.Log.Warn("Get invoice by ID failed: invoice not found", zap.String("invoice_id", invoiceId))
+			return nil, errors.New("invoice tidak ditemukan")
+		}
+		config.Log.Error("Get invoice by ID failed: ", zap.String("error", err.Error()))
+		return nil, err
+	}
+
+	config.Log.Info("Get invoice by ID success", zap.String("invoice_id", invoiceId))
+	return response, nil
 }
