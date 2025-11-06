@@ -4,11 +4,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/mdi-client-portal/client-portal-be/config"
+	"github.com/mdi-client-portal/client-portal-be/database/seeders"
 	"github.com/mdi-client-portal/client-portal-be/internal/jobs"
 
-	"github.com/robfig/cron/v3"
-	// "github.com/mdi-client-portal/client-portal-be/database/seeders"
 	"github.com/mdi-client-portal/client-portal-be/router"
+	"github.com/robfig/cron/v3"
 )
 
 func main() {
@@ -21,12 +21,14 @@ func main() {
 
 	config.ConnectDB()
 
+	// Run seeders
 	// seeders.ClientSeeder(config.DB)
 	// seeders.InvoiceSeeder(config.DB)
+	seeders.PaymentSeeder(config.DB)
 
 	config.Log.Info("Setting up cron jobs...")
 	cronJob := cron.New()
-	cronJob.AddFunc("0 7 * * *", func() {jobs.EmailCron(config.DB)})
+	cronJob.AddFunc("0 7 * * *", func() { jobs.EmailCron(config.DB) })
 	cronJob.Start()
 	config.Log.Info("Cron jobs set up successfully")
 
