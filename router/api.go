@@ -10,4 +10,5 @@ func SetupRoutes(router *fiber.App) {
 	ClientRoutes(api)
 	InvoiceRoutes(api)
 	PaymentRoutes(api)
+	NotificationRoutes(api)
 }

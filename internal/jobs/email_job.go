@@ -9,6 +9,7 @@ import (
 
 	"github.com/mdi-client-portal/client-portal-be/config"
 	"github.com/mdi-client-portal/client-portal-be/database/models"
+	"github.com/mdi-client-portal/client-portal-be/internal/repositories"
 	"gorm.io/gorm"
 )
 
@@ -219,6 +220,7 @@ func EmailCron(db *gorm.DB) {
 	var invoices []models.Invoice
 	var client models.Client
 	
+	notificationRepo := repositories.NewNotificationRepository(db)
 	
 	db.Where("payment_status IN ?", []string{"unpaid", "partial"}).Find(&invoices)
 	
@@ -234,11 +236,17 @@ func EmailCron(db *gorm.DB) {
 
 		if isOverdue || daysLeft == 5 || daysLeft == 3 || daysLeft == 1 {
 			var subject string
+			var notificationMessage string
+			
 			if isOverdue {
 				subject = fmt.Sprintf("Invoice %s Telah Jatuh Tempo", inv.InvoiceNumber)
+				notificationMessage = fmt.Sprintf("Invoice %s telah jatuh tempo. Tanggal jatuh tempo: %s", 
+					inv.InvoiceNumber, inv.DueDate.Format("02 January 2006"))
 			} else {
 				subject = fmt.Sprintf("Pengingat Pembayaran Invoice %s - %d Hari Lagi", 
 					inv.InvoiceNumber, daysLeft)
+				notificationMessage = fmt.Sprintf("Invoice %s akan jatuh tempo dalam %d hari. Tanggal jatuh tempo: %s", 
+					inv.InvoiceNumber, daysLeft, inv.DueDate.Format("02 January 2006"))
 			}
 			
 			htmlBody := createEmailTemplate(
@@ -263,7 +271,15 @@ func EmailCron(db *gorm.DB) {
 					log.Printf("✅ Email berhasil dikirim ke %s untuk invoice %s (%d hari tersisa)", 
 						client.ClientEmail, inv.InvoiceNumber, daysLeft)
 				}
+				
+				// Create notification using repository
+				if err := notificationRepo.CreateNotification(inv.ClientID, notificationMessage); err != nil {
+					log.Printf("⚠️ Gagal membuat notification untuk client %s: %v", inv.ClientID, err)
+				} else {
+					log.Printf("✅ Notification berhasil dibuat untuk client %s", inv.ClientID)
+				}
 			}
 		}
 	}
 }
+
