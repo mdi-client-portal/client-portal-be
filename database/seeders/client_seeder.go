@@ -21,7 +21,7 @@ func ClientSeeder(db *gorm.DB) {
 		(gen_random_uuid(), ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW()),
 		(gen_random_uuid(), ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 	`
-
+		
 	if err := db.Exec(query,
 		"contact@nusantaratech.co.id", string(hashedPassword), "nusantaratech", "IDR", "Indonesia", "Jl. Gatot Subroto No.15, Jakarta Selatan", "12710", "081234567890",
 		"info@majuyaja.co.id", string(hashedPassword), "majuyaja", "IDR", "Indonesia", "Jl. Asia Afrika No.20, Bandung", "40111", "085711223344",
