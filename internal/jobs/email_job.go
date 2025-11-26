@@ -272,7 +272,6 @@ func EmailCron(db *gorm.DB) {
 						client.ClientEmail, inv.InvoiceNumber, daysLeft)
 				}
 				
-				// Create notification using repository
 				if err := notificationRepo.CreateNotification(inv.ClientID, notificationMessage); err != nil {
 					log.Printf("⚠️ Gagal membuat notification untuk client %s: %v", inv.ClientID, err)
 				} else {

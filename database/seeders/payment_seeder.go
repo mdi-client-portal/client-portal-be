@@ -9,7 +9,6 @@ import (
 )
 
 func PaymentSeeder(db *gorm.DB) {
-	// Get invoices with status partial or paid
 	type InvoiceData struct {
 		InvoiceID     string
 		InvoiceNumber string
@@ -36,16 +35,12 @@ func PaymentSeeder(db *gorm.DB) {
 
 	now := time.Now()
 
-	// Create payments for each invoice
 	for idx, inv := range invoices {
-		// For partial invoices, create one payment
-		// For paid invoices, create multiple payments if needed
 
 		remainingAmount := inv.Total - inv.AmountPaid
 
 		if remainingAmount > 0 {
-			// Payment for partial or completion of paid invoice
-			paymentDate := now.AddDate(0, 0, -(idx%5))
+			paymentDate := now.AddDate(0, 0, -(idx % 5))
 			proofOfTransfer := fmt.Sprintf("proof-%d-%d.pdf", idx+1, time.Now().Unix())
 
 			paymentQuery := `

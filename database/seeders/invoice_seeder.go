@@ -9,7 +9,6 @@ import (
 )
 
 func InvoiceSeeder(db *gorm.DB) {
-	// Get all clients first
 	var clientIDs []string
 	if err := db.Raw("SELECT client_id FROM clients LIMIT 5").Scan(&clientIDs).Error; err != nil {
 		log.Fatal("Gagal mengambil client IDs:", err)
@@ -23,25 +22,21 @@ func InvoiceSeeder(db *gorm.DB) {
 	now := time.Now()
 	invoiceNumber := 1001
 
-	// Create invoices for each client
 	for idx, clientID := range clientIDs {
 		for i := 0; i < 3; i++ {
 			invoiceNum := fmt.Sprintf("INV-2024-%04d", invoiceNumber)
 			taxInvNum := fmt.Sprintf("TAX-INV-2024-%04d", invoiceNumber)
 			invoiceNumber++
 
-			// Vary issue and due dates
 			issueDateOffset := -(30 + i*10)
 			dueDateOffset := (i + 1) * 10
 			issueDate := now.AddDate(0, 0, issueDateOffset)
 			dueDate := now.AddDate(0, 0, dueDateOffset)
 
-			// Vary amounts
 			subTotal := 1000000 + float64(idx*100000+i*50000)
 			taxAmount := subTotal * 0.10
 			total := subTotal + taxAmount
 
-			// Vary payment status
 			var paymentStatus string
 			var amountPaid float64
 			switch i {
@@ -73,7 +68,6 @@ func InvoiceSeeder(db *gorm.DB) {
 					return err
 				}
 
-				// Create invoice details
 				invoiceDetailQuery := `
 					INSERT INTO invoice_details
 					(invoice_detail_id, invoice_id, amount, created_at, price_per_delivery, transaction_note, updated_at, delivery_count)
