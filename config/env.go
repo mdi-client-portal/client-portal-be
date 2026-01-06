@@ -33,6 +33,10 @@ func EnvInit() *Environment {
 	v.SetDefault("DB_PORT", "5432")
 	v.SetDefault("APP_ENV", "development")
 	v.SetDefault("LOG_LEVEL", "info")
+	v.SetDefault("FROM_EMAIL", "no-reply@example.com")
+	v.SetDefault("FROM_EMAIL_PASSWORD", "password")
+	v.SetDefault("FROM_EMAIL_SMTP", "smtp.example.com")
+	v.SetDefault("SMTP_ADDR", "smtp.example.com:587")
 
 	v.SetConfigFile(".env")
 	v.AutomaticEnv()

@@ -229,6 +229,8 @@ func EmailCron(db *gorm.DB) {
 
 	now := time.Now()
 	for _, inv := range invoices {
+		log.Printf("ditemukan	 %s: %v", inv.InvoiceID, inv.ClientID)
+
 		daysLeft := int(inv.DueDate.Sub(now).Hours() / 24)
 		isOverdue := now.After(inv.DueDate)
 
@@ -240,7 +242,7 @@ func EmailCron(db *gorm.DB) {
 		if isOverdue || daysLeft == 5 || daysLeft == 3 || daysLeft == 1 {
 			var subject string
 			var notificationMessage string
-
+			log.Printf("Mempersiapkan email untuk invoice %s, jatuh tempo dalam %d hari", inv.InvoiceNumber, daysLeft)
 			if isOverdue {
 				subject = fmt.Sprintf("Invoice %s Telah Jatuh Tempo", inv.InvoiceNumber)
 				notificationMessage = fmt.Sprintf("Invoice %s telah jatuh tempo. Tanggal jatuh tempo: %s",
