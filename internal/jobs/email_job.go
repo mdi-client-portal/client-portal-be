@@ -14,6 +14,8 @@ import (
 )
 
 func SendEmail(to, subject, htmlBody string) error {
+	log.Printf("Attempting to send email to %s with subject: %s", to, subject)
+
 	auth := smtp.PlainAuth("", config.Env.FromEmail, config.Env.FromEmailPassword, config.Env.FromEmailSMTP)
 
 	msg := fmt.Sprintf("From: %s\r\n"+
@@ -24,14 +26,15 @@ func SendEmail(to, subject, htmlBody string) error {
 		"\r\n"+
 		"%s\r\n", config.Env.FromEmail, to, subject, htmlBody)
 
+	log.Printf("Sending email to %s...", to)
 	return smtp.SendMail(config.Env.SMTPAddr, auth, config.Env.FromEmail, []string{to}, []byte(msg))
 }
 
 func createEmailTemplate(clientName, invoiceNumber string, dueDate time.Time, total, amountPaid float64, daysLeft int, isOverdue bool) string {
 	remainingAmount := total - amountPaid
-	
+
 	var html strings.Builder
-	
+
 	html.WriteString(
 		`<!DOCTYPE html>
 		<html lang="id">
@@ -150,56 +153,56 @@ func createEmailTemplate(clientName, invoiceNumber string, dueDate time.Time, to
         	<div class="content">
             	<div class="greeting">
 					Halo 
-					<strong>`) 
-						html.WriteString(clientName)
-						html.WriteString(`
+					<strong>`)
+	html.WriteString(clientName)
+	html.WriteString(`
 					</strong>,
 				</div>
             `)
-			
-			// Different message based on overdue status
-			if isOverdue {
-				html.WriteString(`<p>Kami ingin mengingatkan Anda bahwa invoice berikut <span style="color: #e74c3c; font-weight: bold;">telah jatuh tempo</span>:</p>`)
-			} else {
-				html.WriteString(`<p>Kami ingin mengingatkan Anda mengenai invoice yang akan segera jatuh tempo:</p>`)
-			}
-            
-			html.WriteString(`
+
+	// Different message based on overdue status
+	if isOverdue {
+		html.WriteString(`<p>Kami ingin mengingatkan Anda bahwa invoice berikut <span style="color: #e74c3c; font-weight: bold;">telah jatuh tempo</span>:</p>`)
+	} else {
+		html.WriteString(`<p>Kami ingin mengingatkan Anda mengenai invoice yang akan segera jatuh tempo:</p>`)
+	}
+
+	html.WriteString(`
 				<div class="invoice-info">
 					<div class="invoice-row">
 						<span class="label">Nomor Invoice:</span>
 						<span class="value"><strong>`)
-						html.WriteString(invoiceNumber)
-						html.WriteString(`</strong></span>
+	html.WriteString(invoiceNumber)
+	html.WriteString(`</strong></span>
 					</div>
                 	<div class="invoice-row">
 						<span class="label">Tanggal Jatuh Tempo:</span>
 						<span class="value"><strong>`)
-						html.WriteString(dueDate.Format("02 January 2006"))
-						html.WriteString(`</strong></span>
+	html.WriteString(dueDate.Format("02 January 2006"))
+	html.WriteString(`</strong></span>
 					</div>
                 	<div class="invoice-row">
 						<span class="label">Total Invoice:</span>
 						<span class="value amount">Rp `)
-						html.WriteString(fmt.Sprintf("%.2f", total))
-						html.WriteString(`</span>
+	html.WriteString(fmt.Sprintf("%.2f", total))
+	html.WriteString(`</span>
                 	</div>
                 	<div class="invoice-row">
 						<span class="label">Sudah Dibayar:</span>
 						<span class="value">Rp `)
-						html.WriteString(fmt.Sprintf("%.2f", amountPaid))
-						html.WriteString(`</span>
+	html.WriteString(fmt.Sprintf("%.2f", amountPaid))
+	html.WriteString(`</span>
                 	</div>
                 	<div class="invoice-row">
 						<span class="label">Sisa Pembayaran:</span>
 						<span class="value amount highlight">Rp `)
-						html.WriteString(fmt.Sprintf("%.2f", remainingAmount))
-						html.WriteString(`</span>
+	html.WriteString(fmt.Sprintf("%.2f", remainingAmount))
+	html.WriteString(`</span>
 					</div>
             	</div>
             `)
-		
-			html.WriteString(`
+
+	html.WriteString(`
             <p>Mohon segera lakukan pembayaran untuk menghindari keterlambatan lebih lanjut. Jika Anda sudah melakukan pembayaran, mohon abaikan email ini.</p>
         
         </div>
@@ -219,11 +222,11 @@ func EmailCron(db *gorm.DB) {
 
 	var invoices []models.Invoice
 	var client models.Client
-	
+
 	notificationRepo := repositories.NewNotificationRepository(db)
-	
+
 	db.Where("payment_status IN ?", []string{"unpaid", "partial"}).Find(&invoices)
-	
+
 	now := time.Now()
 	for _, inv := range invoices {
 		daysLeft := int(inv.DueDate.Sub(now).Hours() / 24)
@@ -237,18 +240,18 @@ func EmailCron(db *gorm.DB) {
 		if isOverdue || daysLeft == 5 || daysLeft == 3 || daysLeft == 1 {
 			var subject string
 			var notificationMessage string
-			
+
 			if isOverdue {
 				subject = fmt.Sprintf("Invoice %s Telah Jatuh Tempo", inv.InvoiceNumber)
-				notificationMessage = fmt.Sprintf("Invoice %s telah jatuh tempo. Tanggal jatuh tempo: %s", 
+				notificationMessage = fmt.Sprintf("Invoice %s telah jatuh tempo. Tanggal jatuh tempo: %s",
 					inv.InvoiceNumber, inv.DueDate.Format("02 January 2006"))
 			} else {
-				subject = fmt.Sprintf("Pengingat Pembayaran Invoice %s - %d Hari Lagi", 
+				subject = fmt.Sprintf("Pengingat Pembayaran Invoice %s - %d Hari Lagi",
 					inv.InvoiceNumber, daysLeft)
-				notificationMessage = fmt.Sprintf("Invoice %s akan jatuh tempo dalam %d hari. Tanggal jatuh tempo: %s", 
+				notificationMessage = fmt.Sprintf("Invoice %s akan jatuh tempo dalam %d hari. Tanggal jatuh tempo: %s",
 					inv.InvoiceNumber, daysLeft, inv.DueDate.Format("02 January 2006"))
 			}
-			
+
 			htmlBody := createEmailTemplate(
 				client.ClientName,
 				inv.InvoiceNumber,
@@ -259,19 +262,18 @@ func EmailCron(db *gorm.DB) {
 				isOverdue,
 			)
 
-	
 			if err := SendEmail("tio.michael2004@gmail.com", subject, htmlBody); err != nil {
-				log.Printf("❌ Gagal kirim email ke %s untuk invoice %s: %v", 
+				log.Printf("❌ Gagal kirim email ke %s untuk invoice %s: %v",
 					client.ClientEmail, inv.InvoiceNumber, err)
 			} else {
 				if isOverdue {
-					log.Printf("✅ Email OVERDUE berhasil dikirim ke %s untuk invoice %s", 
+					log.Printf("✅ Email OVERDUE berhasil dikirim ke %s untuk invoice %s",
 						client.ClientEmail, inv.InvoiceNumber)
 				} else {
-					log.Printf("✅ Email berhasil dikirim ke %s untuk invoice %s (%d hari tersisa)", 
+					log.Printf("✅ Email berhasil dikirim ke %s untuk invoice %s (%d hari tersisa)",
 						client.ClientEmail, inv.InvoiceNumber, daysLeft)
 				}
-				
+
 				if err := notificationRepo.CreateNotification(inv.ClientID, notificationMessage); err != nil {
 					log.Printf("⚠️ Gagal membuat notification untuk client %s: %v", inv.ClientID, err)
 				} else {
@@ -280,5 +282,5 @@ func EmailCron(db *gorm.DB) {
 			}
 		}
 	}
+	log.Printf("Email cron job selesai dijalankan")
 }
-

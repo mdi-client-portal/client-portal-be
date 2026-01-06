@@ -31,7 +31,8 @@ func main() {
 
 	config.Log.Info("Setting up cron jobs...")
 	cronJob := cron.New()
-	cronJob.AddFunc("0 7 * * *", func() { jobs.EmailCron(config.DB) })
+	// cronJob.AddFunc("0 7 * * *", func() { jobs.EmailCron(config.DB) })
+	cronJob.AddFunc("* * * * *", func() { jobs.EmailCron(config.DB) })
 	cronJob.Start()
 	config.Log.Info("Cron jobs set up successfully")
 
